@@ -213,7 +213,7 @@ p {
 .hero-subtitle {
     font-size: 1.2rem;
     max-width: 600px;
-    margin-bottom: 3rem;
+    margin: 0 auto 3rem auto;
     color: var(--text-secondary);
 }
 
