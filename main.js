@@ -1,8 +1,5 @@
-// ==========================================
-// CONFIGURATION
-// Paste your Gemini API key below
-// ==========================================
-const GEMINI_API_KEY = "AIzaSyAXlmyNhlvMRRQufbXPy_SJYWwuhFwc57E";
+import { debounce, parseMarkdown, extractSection, sanitizeHTML } from './utils.js';
+import { generateItinerary } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Scroll Reveal Optimization
@@ -40,11 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-
-        window.addEventListener('mouseout', (e) => {
-            if (e.relatedTarget === null) glow.style.opacity = '0';
-        });
-        window.addEventListener('mouseover', () => glow.style.opacity = '0.5');
     }
 
     // Navbar Scroll Effect
@@ -59,9 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- APP LOGIC: Gemini Integration & Indian Cities ---
-
-    // Comprehensive list of major Indian cities
+    // --- DOM LOGIC: Indian Cities Typeahead ---
     const indianCities = [
         "Mumbai, Maharashtra", "Delhi", "Bangalore, Karnataka", "Hyderabad, Telangana",
         "Ahmedabad, Gujarat", "Chennai, Tamil Nadu", "Kolkata, West Bengal", "Surat, Gujarat",
@@ -79,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const dropdown = input.nextElementSibling;
 
-        input.addEventListener('input', (e) => {
+        // Debounce map filtering for execution efficiency
+        const handleInput = debounce((e) => {
             const val = e.target.value.toLowerCase();
             dropdown.innerHTML = '';
 
@@ -105,7 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 dropdown.classList.add('hidden');
             }
-        });
+        }, 150);
+
+        input.addEventListener('input', handleInput);
 
         document.addEventListener('click', (e) => {
             if (e.target !== input && e.target !== dropdown) {
@@ -117,31 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
     attachAutocomplete('startLocation');
     attachAutocomplete('endLocation');
 
-    // Form Submission: calling real Gemini AI API
+    // --- FORM LOGIC: Live Gemini Interaction ---
     const tripForm = document.getElementById('trip-form');
-
-    // Simple markdown parser to output nice HTML from Gemini
-    const parseMarkdown = (md) => {
-        return md.replace(/### (.*)/g, '<h3>$1</h3>')
-            .replace(/## (.*)/g, '<h2>$1</h2>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/- (.*)/g, '<li>$1</li>')
-            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-            .replace(/\n\n/g, '</p><p>')
-            .replace(/^(.+?)$/gm, (match) => { if (!match.startsWith('<')) return `<p>${match}</p>`; return match; });
-    };
 
     if (tripForm) {
         tripForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const apiKey = GEMINI_API_KEY;
-            const startLoc = document.getElementById('startLocation').value;
-            const endLoc = document.getElementById('endLocation').value;
-            const sDate = document.getElementById('startDate').value;
-            const eDate = document.getElementById('endDate').value;
-            const numPeople = document.getElementById('people').value;
-            const transport = document.getElementById('transport').value;
+
+            // Security: Sanitize inputs natively before transmitting them to API
+            const startLoc = sanitizeHTML(document.getElementById('startLocation').value);
+            const endLoc = sanitizeHTML(document.getElementById('endLocation').value);
+            const sDate = sanitizeHTML(document.getElementById('startDate').value);
+            const eDate = sanitizeHTML(document.getElementById('endDate').value);
+            const numPeople = sanitizeHTML(document.getElementById('people').value);
+            const transport = sanitizeHTML(document.getElementById('transport').value);
 
             const btnSubmit = document.querySelector('.btn-submit');
             const loadingSpinner = document.getElementById('loading-spinner');
@@ -151,46 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingSpinner.classList.remove('hidden');
             resultsPanel.classList.add('hidden');
 
-            const prompt = `You are an expert AI travel planner for WanderAI. Create a detailed itinerary for a trip from ${startLoc} to ${endLoc}. 
-Dates: ${sDate} to ${eDate}. 
-Travelers: ${numPeople} people.
-Suggested Transport: ${transport}. 
-
-Output the response STRICTLY separated by the following exact tags (do not include any other top level text outside these tags):
-[OVERVIEW]
-A visual flowchart-style summary of the route in a few lines. Use emojis or arrows like "Origin -> Transport -> Destination -> Activities -> Return". Keep it high-level.
-[LOGISTICS]
-Provide detailed travel logistics specifically between ${startLoc} and ${endLoc}. Detail likely train routes, flights, or road-trip constraints based on Indian infrastructure.
-[ITINERARY]
-Provide a day-by-day basic itinerary from start to finish. Keep it formatted nicely in Markdown utilizing headers and bullet points. 
-[NOTES]
-Important notes, packings suggestions, or recommendations based on the region.`;
-
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }]
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
-
-                const aiText = data.candidates[0].content.parts[0].text;
-
-                // Helper to extract content between custom tags safely
-                const extractSection = (text, startTag, endTag) => {
-                    const startIdx = text.indexOf(startTag);
-                    if (startIdx === -1) return '';
-                    const actualStart = startIdx + startTag.length;
-                    const endIdx = endTag ? text.indexOf(endTag, actualStart) : text.length;
-                    return text.substring(actualStart, endIdx !== -1 ? endIdx : text.length).trim();
-                };
+                // Fetch encapsulated API
+                const aiText = await generateItinerary(startLoc, endLoc, sDate, eDate, numPeople, transport);
 
                 const overview = extractSection(aiText, '[OVERVIEW]', '[LOGISTICS]');
                 const logistics = extractSection(aiText, '[LOGISTICS]', '[ITINERARY]');
@@ -206,9 +151,9 @@ Important notes, packings suggestions, or recommendations based on the region.`;
                         <div class="badge" style="margin-bottom:0">WanderAI Live</div>
                     </div>
                     
-                    <div class="overview-box ai-output">
-                        <h4 style="color:var(--accent-color); margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.05em; font-size:0.85rem;">Trip Overview flowchart</h4>
-                        ${parseMarkdown(overview || 'Flowchart generating...')}
+                    <div class="overview-box ai-output" tabindex="-1" id="focus-mount">
+                        <h4 style="color:var(--accent-color); margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.05em; font-size:0.85rem;">Trip Overview</h4>
+                        ${parseMarkdown(overview || 'No flowchart returned.')}
                     </div>
 
                     <div class="tabs-container">
@@ -228,7 +173,7 @@ Important notes, packings suggestions, or recommendations based on the region.`;
                     </div>
                 `;
 
-                // Attach tab logic
+                // Attach tab logic dynamically
                 const tabs = resultsPanel.querySelectorAll('.tab-btn');
                 const contents = resultsPanel.querySelectorAll('.tab-content');
 
@@ -243,13 +188,20 @@ Important notes, packings suggestions, or recommendations based on the region.`;
                 });
 
                 resultsPanel.classList.remove('hidden');
-                resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Accessibility standard: Map focus dynamically onto generated content
+                const mount = document.getElementById('focus-mount');
+                if (mount) {
+                    mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    mount.focus();
+                }
 
             } catch (err) {
                 loadingSpinner.classList.add('hidden');
                 btnSubmit.classList.remove('hidden');
-                resultsPanel.innerHTML = `<div class="ai-output" style="color:red"><p><strong>Error contacting Gen AI:</strong> ${err.message}. Please check your API key and network connection.</p></div>`;
+                resultsPanel.innerHTML = `<div class="ai-output" style="color:#ff5555" tabindex="-1" id="focus-mount"><p><strong>Error contacting Gen AI:</strong> ${err.message}</p></div>`;
                 resultsPanel.classList.remove('hidden');
+                document.getElementById('focus-mount').focus();
             }
         });
     }

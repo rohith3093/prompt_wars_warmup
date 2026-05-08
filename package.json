@@ -1,0 +1,9 @@
+{
+    "name": "wanderai-hackathon",
+    "version": "1.0.0",
+    "description": "Hackathon submission core",
+    "type": "module",
+    "scripts": {
+        "test": "node --test test/utils.test.js"
+    }
+}
