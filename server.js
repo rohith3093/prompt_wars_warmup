@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 8080;
 
 // Security: Captures the API key from Google Secret Manager Environment Variables automatically on Cloud Run.
 // DO NOT commit hardcoded keys here. Let Cloud Run inject it.
-const GEMINI_API_KEY = "AIzaSyA4YNuYlJvXkqnza3hzy3ti24CCoi4dUzc";
+const GEMINI_API_KEY ="AIzaSyAapscYtUfl04ls7ynEuYDyOL_wu3OJ5QA";
 
 app.use(express.static(path.resolve('.')));
 app.use(express.json());
