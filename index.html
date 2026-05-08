@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderAI | Start Experience</title>
+    <meta name="description" content="Plan trips dynamically with preferences, constraints, and real-time updates.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="glow"></div>
+
+    <nav class="navbar fade-in">
+        <div class="logo">WanderAI</div>
+        <div class="nav-links">
+            <a href="index.html" class="active">App</a>
+            <a href="about.html">About & Features</a>
+        </div>
+        <button class="btn btn-secondary">Login</button>
+    </nav>
+
+    <main class="app-main">
+        <section id="engine" class="engine-section reveal-up active">
+            <h1>Design your constraints.</h1>
+            <p class="hero-subtitle">Our Generative AI will build a personalized journey exclusively across India.</p>
+
+            <div class="engine-container">
+                <form id="trip-form" class="trip-form" aria-label="Trip Configuration Form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startLocation">Origin (Indian City)</label>
+                            <div class="input-container">
+                                <input type="text" id="startLocation" name="startLocation" class="city-input"
+                                    placeholder="e.g. Mumbai, Maharashtra" required aria-required="true"
+                                    autocomplete="off">
+                                <div class="autocomplete-dropdown hidden"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="endLocation">Destination (Indian City)</label>
+                            <div class="input-container">
+                                <input type="text" id="endLocation" name="endLocation" class="city-input"
+                                    placeholder="e.g. Delhi" required aria-required="true" autocomplete="off">
+                                <div class="autocomplete-dropdown hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" name="startDate" required aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" name="endDate" required aria-required="true">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="people">Number of Travelers</label>
+                            <input type="number" id="people" name="people" min="1" max="20" value="2" required
+                                aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="transport">Preferred Transport</label>
+                            <select id="transport" name="transport" aria-label="Mode of Transport">
+                                <option value="Flight">Airplane</option>
+                                <option value="Train">Indian Railways / Train</option>
+                                <option value="Car driving">Road Trip / Car</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-submit">Generate Live Itinerary with AI</button>
+                    <div id="loading-spinner" class="loading-spinner hidden" aria-live="assertive">Contacting Gemini...
+                    </div>
+                </form>
+
+                <div id="itinerary-results" class="itinerary-results hidden" aria-live="polite">
+                    <!-- Dynamic content injected here via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="brand">WanderAI</div>
+            <div class="copyright">© 2026 WanderAI Inc.</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
