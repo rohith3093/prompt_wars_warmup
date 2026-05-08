@@ -1,17 +1,13 @@
-// ==========================================
-// CONFIGURATION: API BINDINGS
-// ==========================================
-const GEMINI_API_KEY = "AIzaSyAXlmyNhlvMRRQufbXPy_SJYWwuhFwc57E";
-const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-
 /**
- * Handles network interaction and orchestration with Google Generative AI Models securely.
+ * Handles network interaction communicating strictly through our secure internal proxy.
+ * This completely abstracts Google API Keys and tokens from frontend client visibility.
  */
-export async function generateItinerary(startLoc, endLoc, sDate, eDate, numPeople, transport) {
+export async function generateItinerary(startLoc, endLoc, sDate, eDate, numPeople, transport, comments) {
+    const commentsContext = comments ? `\nAdditional User Constraints & Preferences: ${comments}` : "";
+
     const prompt = `You are an expert AI travel planner for WanderAI. Create a detailed itinerary for a trip from ${startLoc} to ${endLoc}. 
-Dates: ${sDate} to ${eDate}. 
-Travelers: ${numPeople} people.
-Suggested Transport: ${transport}. 
+Dates: ${sDate} to ${eDate}. Travelers: ${numPeople} people.
+Suggested Transport: ${transport}. ${commentsContext} 
 
 Output the response STRICTLY separated by the following exact tags (do not include any other top level text outside these tags):
 [OVERVIEW]
@@ -23,19 +19,17 @@ Provide a day-by-day basic itinerary from start to finish. Keep it formatted nic
 [NOTES]
 Important notes, packings suggestions, or recommendations based on the region.`;
 
-    const response = await fetch(`${ENDPOINT}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch('/api/itinerary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-        })
+        body: JSON.stringify({ prompt })
     });
 
     const data = await response.json();
 
     if (data.error) {
-        throw new Error(data.error.message);
+        throw new Error(data.error);
     }
 
-    return data.candidates[0].content.parts[0].text;
+    return data.text;
 }

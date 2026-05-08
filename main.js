@@ -124,6 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const eDate = sanitizeHTML(document.getElementById('endDate').value);
             const numPeople = sanitizeHTML(document.getElementById('people').value);
             const transport = sanitizeHTML(document.getElementById('transport').value);
+            const commentsElement = document.getElementById('comments');
+            const comments = commentsElement ? sanitizeHTML(commentsElement.value) : "";
 
             const btnSubmit = document.querySelector('.btn-submit');
             const loadingSpinner = document.getElementById('loading-spinner');
@@ -135,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Fetch encapsulated API
-                const aiText = await generateItinerary(startLoc, endLoc, sDate, eDate, numPeople, transport);
+                const aiText = await generateItinerary(startLoc, endLoc, sDate, eDate, numPeople, transport, comments);
 
                 const overview = extractSection(aiText, '[OVERVIEW]', '[LOGISTICS]');
                 const logistics = extractSection(aiText, '[LOGISTICS]', '[ITINERARY]');
