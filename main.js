@@ -150,7 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultsPanel.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom:1rem;">
                         <h2>Trip Generated!</h2>
-                        <div class="badge" style="margin-bottom:0">WanderAI Live</div>
+                        <div class="action-buttons" style="display:flex; gap:0.5rem; margin-bottom:0;">
+                            <button id="btn-print" class="tab-btn" style="padding: 0.4rem 1rem;">📄 Save PDF</button>
+                            <button id="btn-copy" class="tab-btn" style="padding: 0.4rem 1rem;">📋 Copy</button>
+                        </div>
                     </div>
                     
                     <div class="overview-box ai-output" tabindex="-1" id="focus-mount">
@@ -190,6 +193,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 resultsPanel.classList.remove('hidden');
+
+                // Attach Export Handlers Natively
+                document.getElementById('btn-print').addEventListener('click', () => window.print());
+                document.getElementById('btn-copy').addEventListener('click', async () => {
+                    try {
+                        const copyText = `WanderAI Itinerary: ${startLoc} to ${endLoc}\n\n---\n\n${overview}\n\n${itinerary}`;
+                        await navigator.clipboard.writeText(copyText);
+                        const btn = document.getElementById('btn-copy');
+                        btn.textContent = "✅ Copied!";
+                        setTimeout(() => btn.textContent = "📋 Copy", 3000);
+                    } catch (e) {
+                        alert("Clipboard access denied natively. Please copy manually.");
+                    }
+                });
 
                 // Accessibility standard: Map focus dynamically onto generated content
                 const mount = document.getElementById('focus-mount');

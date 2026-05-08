@@ -85,7 +85,13 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-submit">Generate Live Itinerary with AI</button>
-                    <div id="loading-spinner" class="loading-spinner hidden" aria-live="assertive">Contacting Gemini...
+                    <div id="loading-spinner" class="hidden" aria-live="assertive">
+                        <div class="skeleton-container">
+                            <div class="skeleton-box"></div>
+                            <div class="skeleton-line" style="margin-top: 1rem;"></div>
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
                     </div>
                 </form>
 

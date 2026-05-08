@@ -898,3 +898,142 @@ footer {
         text-align: center;
     }
 }
+
+/* Shimmer Skeleton UI */
+.skeleton-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    text-align: left;
+}
+
+.skeleton-box,
+.skeleton-line {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 25%, rgba(106, 76, 255, 0.2) 50%, rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.skeleton-box {
+    height: 120px;
+}
+
+.skeleton-line {
+    height: 20px;
+    border-radius: 4px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* AI Output Styling */
+.ai-output p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.ai-output h2 {
+    color: var(--accent-color);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid rgba(106, 76, 255, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.ai-output h3 {
+    color: #fff;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.ai-output strong {
+    color: #b39ddb;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.ai-output ul {
+    margin-left: 1.2rem;
+    padding-left: 0.8rem;
+    border-left: 2px solid rgba(106, 76, 255, 0.4);
+    margin-bottom: 1.5rem;
+}
+
+.ai-output li {
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.ai-output li::marker {
+    color: var(--accent-color);
+}
+
+/* Native Print Styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    nav,
+    .engine-container form,
+    .hero-subtitle,
+    h1 {
+        display: none !important;
+    }
+
+    #itinerary-results {
+        position: static;
+        display: block;
+        padding: 0;
+        border: none;
+        margin: 0;
+    }
+
+    #itinerary-results * {
+        color: black !important;
+        text-shadow: none !important;
+    }
+
+    .tab-content {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin-bottom: 2rem;
+        border: none;
+    }
+
+    .tabs-container,
+    .action-buttons,
+    #loading-spinner,
+    #glow {
+        display: none !important;
+    }
+
+    .ai-output {
+        background: none !important;
+        padding: 0 !important;
+    }
+
+    .overview-box {
+        border-left: 3px solid #666;
+        padding-left: 1rem;
+    }
+}
